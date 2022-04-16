@@ -18,10 +18,12 @@ public class MessageUtilsTest {
         assertEquals(10, MessageUtils.getByteSize("a", "b"));
         Message msg = new ChatMessage("andrew", 123, "Hello world!");
         int expectedMsgSize = 1 + 4 + 6 + 8 + 4 + 12;
-        assertEquals(1, MessageUtils.getByteSize((Message) null));
-        assertEquals(expectedMsgSize, MessageUtils.getByteSize(msg));
-        assertEquals(4 * expectedMsgSize, MessageUtils.getByteSize(msg, msg, msg, msg));
-        assertEquals(16, MessageUtils.getByteSize(UUID.randomUUID()));
-        assertEquals(4, MessageUtils.getByteSize(StandardCopyOption.ATOMIC_MOVE));
+        Serializer serializer = new Serializer();
+        serializer.registerType(1, ChatMessage.class);
+        assertEquals(1, MessageUtils.getByteSize(serializer, (Message) null));
+        assertEquals(expectedMsgSize, MessageUtils.getByteSize(serializer, msg));
+        assertEquals(4 * expectedMsgSize, MessageUtils.getByteSize(serializer, msg, msg, msg, msg));
+        assertEquals(16, MessageUtils.getByteSize(serializer, UUID.randomUUID()));
+        assertEquals(4, MessageUtils.getByteSize(serializer, StandardCopyOption.ATOMIC_MOVE));
     }
 }

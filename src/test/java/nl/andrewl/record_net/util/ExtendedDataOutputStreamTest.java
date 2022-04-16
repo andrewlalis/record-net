@@ -1,5 +1,6 @@
 package nl.andrewl.record_net.util;
 
+import nl.andrewl.record_net.Serializer;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -13,8 +14,9 @@ public class ExtendedDataOutputStreamTest {
 
     @Test
     public void testWriteString() throws IOException {
+        Serializer serializer = new Serializer();
         ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-        ExtendedDataOutputStream eOut = new ExtendedDataOutputStream(bOut);
+        ExtendedDataOutputStream eOut = new ExtendedDataOutputStream(serializer, bOut);
         eOut.writeString("Hello world!");
         byte[] data = bOut.toByteArray();
         assertEquals(4 + "Hello world!".length(), data.length);

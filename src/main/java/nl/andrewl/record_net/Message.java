@@ -15,15 +15,7 @@ public interface Message {
 	 * @return The serializer to use to read and write messages of this type.
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends Message> MessageTypeSerializer<T> getTypeSerializer() {
-		return MessageTypeSerializer.get((Class<T>) this.getClass());
-	}
-
-	/**
-	 * Convenience method to determine the size of this message in bytes.
-	 * @return The size of this message, in bytes.
-	 */
-	default int byteSize() {
-		return getTypeSerializer().byteSizeFunction().apply(this);
+	default <T extends Message> MessageTypeSerializer<T> getTypeSerializer(Serializer serializer) {
+		return (MessageTypeSerializer<T>) serializer.getTypeSerializer(this.getClass());
 	}
 }

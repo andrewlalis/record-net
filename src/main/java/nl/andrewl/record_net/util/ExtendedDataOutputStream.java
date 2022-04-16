@@ -1,6 +1,7 @@
 package nl.andrewl.record_net.util;
 
 import nl.andrewl.record_net.Message;
+import nl.andrewl.record_net.Serializer;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,8 +14,11 @@ import java.util.UUID;
  * that help us to write more data.
  */
 public class ExtendedDataOutputStream extends DataOutputStream {
-	public ExtendedDataOutputStream(OutputStream out) {
+	private final Serializer serializer;
+
+	public ExtendedDataOutputStream(Serializer serializer, OutputStream out) {
 		super(out);
+		this.serializer = serializer;
 	}
 
 	/**
@@ -125,7 +129,7 @@ public class ExtendedDataOutputStream extends DataOutputStream {
 	public <T extends Message> void writeMessage(Message msg) throws IOException {
 		writeBoolean(msg != null);
 		if (msg != null) {
-			msg.getTypeSerializer().writer().write(msg, this);
+			msg.getTypeSerializer(serializer).writer().write(msg, this);
 		}
 	}
 

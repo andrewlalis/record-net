@@ -2,6 +2,7 @@ package nl.andrewl.record_net.util;
 
 import nl.andrewl.record_net.Message;
 import nl.andrewl.record_net.MessageTypeSerializer;
+import nl.andrewl.record_net.Serializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -16,12 +17,15 @@ import java.util.UUID;
  * complex types that are used by the Concord system.
  */
 public class ExtendedDataInputStream extends DataInputStream {
-	public ExtendedDataInputStream(InputStream in) {
+	private final Serializer serializer;
+
+	public ExtendedDataInputStream(Serializer serializer, InputStream in) {
 		super(in);
+		this.serializer = serializer;
 	}
 
-	public ExtendedDataInputStream(byte[] data) {
-		this(new ByteArrayInputStream(data));
+	public ExtendedDataInputStream(Serializer serializer, byte[] data) {
+		this(serializer, new ByteArrayInputStream(data));
 	}
 
 	public String readString() throws IOException {
@@ -81,10 +85,10 @@ public class ExtendedDataInputStream extends DataInputStream {
 			int length = this.readInt();
 			return this.readNBytes(length);
 		} else if (type.isArray() && Message.class.isAssignableFrom(type.getComponentType())) {
-			var messageType = MessageTypeSerializer.get((Class<? extends Message>) type.getComponentType());
+			var messageType = MessageTypeSerializer.get(serializer, (Class<? extends Message>) type.getComponentType());
 			return this.readArray(messageType);
 		} else if (Message.class.isAssignableFrom(type)) {
-			var messageType = MessageTypeSerializer.get((Class<? extends Message>) type);
+			var messageType = MessageTypeSerializer.get(serializer, (Class<? extends Message>) type);
 			return messageType.reader().read(this);
 		} else {
 			throw new IOException("Unsupported object type: " + type.getSimpleName());

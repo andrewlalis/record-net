@@ -35,19 +35,25 @@ public class MessageUtils {
 		return size;
 	}
 
-	public static int getByteSize(Message msg) {
-		return 1 + (msg == null ? 0 : msg.byteSize());
+	@SuppressWarnings("unchecked")
+	public static <T extends Message> int getByteSize(Serializer serializer, T msg) {
+		if (msg == null) {
+			return 1;
+		} else {
+			MessageTypeSerializer<T> typeSerializer = (MessageTypeSerializer<T>) serializer.getTypeSerializer(msg.getClass());
+			return 1 + typeSerializer.byteSizeFunction().apply(msg);
+		}
 	}
 
-	public static <T extends Message> int getByteSize(T[] items) {
+	public static <T extends Message> int getByteSize(Serializer serializer, T[] items) {
 		int count = Integer.BYTES;
 		for (var item : items) {
-			count += getByteSize(item);
+			count += getByteSize(serializer, item);
 		}
 		return count;
 	}
 
-	public static int getByteSize(Object o) {
+	public static int getByteSize(Serializer serializer, Object o) {
 		if (o instanceof Integer) {
 			return Integer.BYTES;
 		} else if (o instanceof Long) {
@@ -61,18 +67,18 @@ public class MessageUtils {
 		} else if (o instanceof byte[]) {
 			return Integer.BYTES + ((byte[]) o).length;
 		} else if (o.getClass().isArray() && Message.class.isAssignableFrom(o.getClass().getComponentType())) {
-			return getByteSize((Message[]) o);
+			return getByteSize(serializer, (Message[]) o);
 		} else if (o instanceof Message) {
-			return getByteSize((Message) o);
+			return getByteSize(serializer, (Message) o);
 		} else {
 			throw new IllegalArgumentException("Unsupported object type: " + o.getClass().getSimpleName());
 		}
 	}
 
-	public static int getByteSize(Object... objects) {
+	public static int getByteSize(Serializer serializer, Object... objects) {
 		int size = 0;
 		for (var o : objects) {
-			size += getByteSize(o);
+			size += getByteSize(serializer, o);
 		}
 		return size;
 	}

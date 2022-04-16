@@ -20,7 +20,7 @@ public class SerializerTest {
         ByteArrayOutputStream bOut = new ByteArrayOutputStream();
         s.writeMessage(msg, bOut);
         byte[] data = bOut.toByteArray();
-        assertEquals(1 + msg.byteSize(), data.length);
+        assertEquals(MessageUtils.getByteSize(s, msg), data.length);
         assertEquals(data[0], 1);
 
         ChatMessage readMsg = (ChatMessage) s.readMessage(new ByteArrayInputStream(data));

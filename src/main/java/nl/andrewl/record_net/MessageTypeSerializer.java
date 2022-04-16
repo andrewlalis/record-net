@@ -1,5 +1,7 @@
 package nl.andrewl.record_net;
 
+import nl.andrewl.record_net.util.Pair;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.RecordComponent;
 import java.util.Arrays;
@@ -25,18 +27,25 @@ public record MessageTypeSerializer<T extends Message>(
 		MessageReader<T> reader,
 		MessageWriter<T> writer
 ) {
-	private static final Map<Class<?>, MessageTypeSerializer<?>> generatedMessageTypes = new HashMap<>();
+	/**
+	 * An internal cache for storing generated type serializers.
+	 */
+	private static final Map<Pair<Class<?>, Serializer>, MessageTypeSerializer<?>> generatedMessageTypes = new HashMap<>();
 
 	/**
 	 * Gets the {@link MessageTypeSerializer} instance for a given message class, and
 	 * generates a new implementation if none exists yet.
+	 * @param serializer The serializer context to get a type serializer for.
 	 * @param messageClass The class of the message to get a type for.
 	 * @param <T> The type of the message.
 	 * @return The message type.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Message> MessageTypeSerializer<T> get(Class<T> messageClass) {
-		return (MessageTypeSerializer<T>) generatedMessageTypes.computeIfAbsent(messageClass, c -> generateForRecord((Class<T>) c));
+	public static <T extends Message> MessageTypeSerializer<T> get(Serializer serializer, Class<T> messageClass) {
+		return (MessageTypeSerializer<T>) generatedMessageTypes.computeIfAbsent(
+				new Pair<>(messageClass, serializer),
+				p -> generateForRecord(serializer, (Class<T>) p.first())
+		);
 	}
 
 	/**
@@ -45,11 +54,12 @@ public record MessageTypeSerializer<T extends Message>(
 	 * <p>
 	 *     Note that this only works for record-based messages.
 	 * </p>
+	 * @param serializer The serializer context to get a type serializer for.
 	 * @param messageTypeClass The class of the message type.
 	 * @param <T> The type of the message.
 	 * @return A message type instance.
 	 */
-	public static <T extends Message> MessageTypeSerializer<T> generateForRecord(Class<T> messageTypeClass) {
+	public static <T extends Message> MessageTypeSerializer<T> generateForRecord(Serializer serializer, Class<T> messageTypeClass) {
 		RecordComponent[] components = messageTypeClass.getRecordComponents();
 		if (components == null) throw new IllegalArgumentException("Cannot generate a MessageTypeSerializer for non-record class " + messageTypeClass.getSimpleName());
 		Constructor<T> constructor;
@@ -61,7 +71,7 @@ public record MessageTypeSerializer<T extends Message>(
 		}
 		return new MessageTypeSerializer<>(
 				messageTypeClass,
-				generateByteSizeFunction(components),
+				generateByteSizeFunction(serializer, components),
 				generateReader(constructor),
 				generateWriter(components)
 		);
@@ -70,17 +80,18 @@ public record MessageTypeSerializer<T extends Message>(
 	/**
 	 * Generates a function implementation that counts the byte size of a
 	 * message based on the message's record component types.
+	 * @param serializer The serializer context to generate a function for.
 	 * @param components The list of components that make up the message.
 	 * @param <T> The message type.
 	 * @return A function that computes the byte size of a message of the given
 	 * type.
 	 */
-	private static <T extends Message> Function<T, Integer> generateByteSizeFunction(RecordComponent[] components) {
+	private static <T extends Message> Function<T, Integer> generateByteSizeFunction(Serializer serializer, RecordComponent[] components) {
 		return msg -> {
 			int size = 0;
 			for (var component : components) {
 				try {
-					size += MessageUtils.getByteSize(component.getAccessor().invoke(msg));
+					size += MessageUtils.getByteSize(serializer, component.getAccessor().invoke(msg));
 				} catch (ReflectiveOperationException e) {
 					throw new IllegalStateException(e);
 				}

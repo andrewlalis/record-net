@@ -19,6 +19,8 @@ public class Serializer {
 	 */
 	private final Map<Byte, MessageTypeSerializer<?>> messageTypes = new HashMap<>();
 
+	private final Map<Class<?>, MessageTypeSerializer<?>> messageTypeClasses = new HashMap<>();
+
 	/**
 	 * An inverse of {@link Serializer#messageTypes} which is used to look up a
 	 * message's byte value when you know the class of the message.
@@ -47,10 +49,25 @@ public class Serializer {
 	 * @param messageClass The type of message associated with the given id.
 	 */
 	public synchronized <T extends Message> void registerType(int id, Class<T> messageClass) {
+		registerTypeSerializer(id, MessageTypeSerializer.generateForRecord(this, messageClass));
+	}
+
+	public synchronized <T extends Message> void registerTypeSerializer(int id, MessageTypeSerializer<T> typeSerializer) {
 		if (id < 0 || id > 127) throw new IllegalArgumentException("Invalid id.");
-		MessageTypeSerializer<T> type = MessageTypeSerializer.get(messageClass);
-		messageTypes.put((byte)id, type);
-		inverseMessageTypes.put(type, (byte)id);
+		messageTypes.put((byte) id, typeSerializer);
+		inverseMessageTypes.put(typeSerializer, (byte) id);
+		messageTypeClasses.put(typeSerializer.messageClass(), typeSerializer);
+	}
+
+	/**
+	 * Gets the {@link MessageTypeSerializer} for the given message class.
+	 * @param messageType The class of message to get the serializer for.
+	 * @return The message type serializer.
+	 * @param <T> The type of message.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends Message> MessageTypeSerializer<T> getTypeSerializer(Class<T> messageType) {
+		return (MessageTypeSerializer<T>) messageTypeClasses.get(messageType);
 	}
 
 	/**
@@ -63,7 +80,7 @@ public class Serializer {
 	 * constructed for the incoming data.
 	 */
 	public Message readMessage(InputStream i) throws IOException {
-		ExtendedDataInputStream d = new ExtendedDataInputStream(i);
+		ExtendedDataInputStream d = new ExtendedDataInputStream(this, i);
 		byte typeId = d.readByte();
 		var type = messageTypes.get(typeId);
 		if (type == null) {
@@ -99,12 +116,12 @@ public class Serializer {
 	 */
 	public <T extends Message> void writeMessage(T msg, OutputStream o) throws IOException {
 		DataOutputStream d = new DataOutputStream(o);
-		Byte typeId = inverseMessageTypes.get(msg.getTypeSerializer());
+		Byte typeId = inverseMessageTypes.get(msg.getTypeSerializer(this));
 		if (typeId == null) {
 			throw new IOException("Unsupported message type: " + msg.getClass().getSimpleName());
 		}
 		d.writeByte(typeId);
-		msg.getTypeSerializer().writer().write(msg, new ExtendedDataOutputStream(d));
+		msg.getTypeSerializer(this).writer().write(msg, new ExtendedDataOutputStream(this, d));
 		d.flush();
 	}
 
@@ -117,7 +134,8 @@ public class Serializer {
 	 * to write is not supported by this serializer.
 	 */
 	public <T extends Message> byte[] writeMessage(T msg) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream(1 + msg.byteSize());
+		int bytes = msg.getTypeSerializer(this).byteSizeFunction().apply(msg);
+		ByteArrayOutputStream out = new ByteArrayOutputStream(1 + bytes);
 		writeMessage(msg, out);
 		return out.toByteArray();
 	}
