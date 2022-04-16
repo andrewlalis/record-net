@@ -37,4 +37,4 @@ class Example {
 ```
 
 ## Get record-net
-This project is published as a package on GitHub. You can view available packages [here](https://github.com/andrewlalis/record-net/packages).
+This project is published as a package on GitHub. You can view available packages [here](https://github.com/andrewlalis/record-net/packages). Alternatively, [you can get this project on jitpack.io](https://jitpack.io/#andrewlalis/record-net).
