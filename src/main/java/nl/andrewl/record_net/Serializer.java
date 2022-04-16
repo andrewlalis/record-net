@@ -2,6 +2,7 @@ package nl.andrewl.record_net;
 
 import nl.andrewl.record_net.util.ExtendedDataInputStream;
 import nl.andrewl.record_net.util.ExtendedDataOutputStream;
+import nl.andrewl.record_net.util.RecordMessageTypeSerializer;
 
 import java.io.*;
 import java.util.HashMap;
@@ -37,21 +38,28 @@ public class Serializer {
 	 * their ids.
 	 * @param messageTypes A map containing message types mapped to their ids.
 	 */
-	public Serializer(Map<Byte, Class<? extends Message>> messageTypes) {
+	public Serializer(Map<Integer, Class<? extends Message>> messageTypes) {
 		messageTypes.forEach(this::registerType);
 	}
 
 	/**
-	 * Helper method which registers a message type to be supported by the
-	 * serializer, by adding it to the normal and inverse mappings.
+	 * Helper method for registering a message type serializer for a record
+	 * class, using {@link RecordMessageTypeSerializer#generateForRecord(Serializer, Class)}.
 	 * @param id The byte which will be used to identify messages of the given
 	 *           class. The value should from 0 to 127.
 	 * @param messageClass The type of message associated with the given id.
 	 */
 	public synchronized <T extends Message> void registerType(int id, Class<T> messageClass) {
-		registerTypeSerializer(id, MessageTypeSerializer.generateForRecord(this, messageClass));
+		registerTypeSerializer(id, RecordMessageTypeSerializer.generateForRecord(this, messageClass));
 	}
 
+	/**
+	 * Registers the given type serializer with the given id.
+	 * @param id The id to use.
+	 * @param typeSerializer The type serializer that will be associated with
+	 *                       the given id.
+	 * @param <T> The message type.
+	 */
 	public synchronized <T extends Message> void registerTypeSerializer(int id, MessageTypeSerializer<T> typeSerializer) {
 		if (id < 0 || id > 127) throw new IllegalArgumentException("Invalid id.");
 		messageTypes.put((byte) id, typeSerializer);

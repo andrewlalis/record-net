@@ -85,10 +85,10 @@ public class ExtendedDataInputStream extends DataInputStream {
 			int length = this.readInt();
 			return this.readNBytes(length);
 		} else if (type.isArray() && Message.class.isAssignableFrom(type.getComponentType())) {
-			var messageType = MessageTypeSerializer.get(serializer, (Class<? extends Message>) type.getComponentType());
+			var messageType = RecordMessageTypeSerializer.get(serializer, (Class<? extends Message>) type.getComponentType());
 			return this.readArray(messageType);
 		} else if (Message.class.isAssignableFrom(type)) {
-			var messageType = MessageTypeSerializer.get(serializer, (Class<? extends Message>) type);
+			var messageType = RecordMessageTypeSerializer.get(serializer, (Class<? extends Message>) type);
 			return messageType.reader().read(this);
 		} else {
 			throw new IOException("Unsupported object type: " + type.getSimpleName());

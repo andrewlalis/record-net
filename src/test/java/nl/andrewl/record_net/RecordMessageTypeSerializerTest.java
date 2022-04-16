@@ -3,6 +3,7 @@ package nl.andrewl.record_net;
 import nl.andrewl.record_net.msg.ChatMessage;
 import nl.andrewl.record_net.util.ExtendedDataInputStream;
 import nl.andrewl.record_net.util.ExtendedDataOutputStream;
+import nl.andrewl.record_net.util.RecordMessageTypeSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -11,11 +12,11 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class MessageTypeSerializerTest {
+public class RecordMessageTypeSerializerTest {
     @Test
     public void testGenerateForRecord() throws IOException {
         Serializer serializer = new Serializer();
-        var s1 = MessageTypeSerializer.get(serializer, ChatMessage.class);
+        var s1 = RecordMessageTypeSerializer.get(serializer, ChatMessage.class);
         ChatMessage msg = new ChatMessage("andrew", 123, "Hello world!");
         int expectedByteSize = 4 + msg.username().length() + 8 + 4 + msg.message().length();
         assertEquals(expectedByteSize, s1.byteSizeFunction().apply(msg));
@@ -30,6 +31,6 @@ public class MessageTypeSerializerTest {
 
         // Only record classes can be generated.
         class NonRecordMessage implements Message {}
-        assertThrows(IllegalArgumentException.class, () -> MessageTypeSerializer.get(serializer, NonRecordMessage.class));
+        assertThrows(IllegalArgumentException.class, () -> RecordMessageTypeSerializer.get(serializer, NonRecordMessage.class));
     }
 }

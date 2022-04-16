@@ -40,7 +40,7 @@ public class MessageUtils {
 		if (msg == null) {
 			return 1;
 		} else {
-			MessageTypeSerializer<T> typeSerializer = (MessageTypeSerializer<T>) serializer.getTypeSerializer(msg.getClass());
+			MessageTypeSerializerImpl<T> typeSerializer = (MessageTypeSerializerImpl<T>) serializer.getTypeSerializer(msg.getClass());
 			return 1 + typeSerializer.byteSizeFunction().apply(msg);
 		}
 	}
