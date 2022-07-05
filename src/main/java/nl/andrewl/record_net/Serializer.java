@@ -88,14 +88,17 @@ public class Serializer {
 	 * constructed for the incoming data.
 	 */
 	public Message readMessage(InputStream i) throws IOException {
-		ExtendedDataInputStream d = new ExtendedDataInputStream(this, i);
-		byte typeId = d.readByte();
+		return readMessage(new ExtendedDataInputStream(this, i));
+	}
+
+	public Message readMessage(ExtendedDataInputStream in) throws IOException {
+		byte typeId = in.readByte();
 		var type = messageTypes.get(typeId);
 		if (type == null) {
 			throw new IOException("Unsupported message type: " + typeId);
 		}
 		try {
-			return type.reader().read(d);
+			return type.reader().read(in);
 		} catch (IOException e) {
 			throw new IOException("Could not instantiate new message object of type " + type.getClass().getSimpleName(), e);
 		}
@@ -123,14 +126,17 @@ public class Serializer {
 	 * to write is not supported by this serializer.
 	 */
 	public <T extends Message> void writeMessage(T msg, OutputStream o) throws IOException {
-		DataOutputStream d = new DataOutputStream(o);
+		writeMessage(msg, new ExtendedDataOutputStream(this, o));
+	}
+
+	public <T extends Message> void writeMessage(T msg, ExtendedDataOutputStream out) throws IOException {
 		Byte typeId = inverseMessageTypes.get(msg.getTypeSerializer(this));
 		if (typeId == null) {
 			throw new IOException("Unsupported message type: " + msg.getClass().getSimpleName());
 		}
-		d.writeByte(typeId);
-		msg.getTypeSerializer(this).writer().write(msg, new ExtendedDataOutputStream(this, d));
-		d.flush();
+		out.writeByte(typeId);
+		msg.getTypeSerializer(this).writer().write(msg, out);
+		out.flush();
 	}
 
 	/**

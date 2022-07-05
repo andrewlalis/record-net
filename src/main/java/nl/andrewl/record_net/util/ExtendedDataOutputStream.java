@@ -143,9 +143,17 @@ public class ExtendedDataOutputStream extends DataOutputStream {
 	 */
 	public void writeObject(Object o, Class<?> type) throws IOException {
 		if (type.equals(Integer.class) || type.equals(int.class)) {
-			writeInt((Integer) o);
+			writeInt((int) o);
+		} else if (type.equals(Short.class) || type.equals(short.class)) {
+			writeShort((short) o);
+		} else if (type.equals(Byte.class) || type.equals(byte.class)) {
+			writeByte((byte) o);
 		} else if (type.equals(Long.class) || type.equals(long.class)) {
-			writeLong((Long) o);
+			writeLong((long) o);
+		} else if (type.equals(Float.class) || type.equals(float.class)) {
+			writeFloat((float) o);
+		} else if (type.equals(Double.class) || type.equals(double.class)) {
+			writeDouble((double) o);
 		} else if (type.equals(String.class)) {
 			writeString((String) o);
 		} else if (type.equals(UUID.class)) {

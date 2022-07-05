@@ -72,21 +72,29 @@ public class ExtendedDataInputStream extends DataInputStream {
 	@SuppressWarnings("unchecked")
 	public Object readObject(Class<?> type) throws IOException {
 		if (type.equals(Integer.class) || type.equals(int.class)) {
-			return this.readInt();
+			return readInt();
+		} else if (type.equals(Short.class) || type.equals(short.class)) {
+			return readShort();
+		} else if (type.equals(Byte.class) || type.equals(byte.class)) {
+			return (byte) read();
 		} else if (type.equals(Long.class) || type.equals(long.class)) {
-			return this.readLong();
+			return readLong();
+		} else if (type.equals(Float.class) || type.equals(float.class)) {
+			return readFloat();
+		} else if (type.equals(Double.class) || type.equals(double.class)) {
+			return readDouble();
 		} else if (type.equals(String.class)) {
-			return this.readString();
+			return readString();
 		} else if (type.equals(UUID.class)) {
-			return this.readUUID();
+			return readUUID();
 		} else if (type.isEnum()) {
-			return this.readEnum((Class<? extends Enum<?>>) type);
+			return readEnum((Class<? extends Enum<?>>) type);
 		} else if (type.isAssignableFrom(byte[].class)) {
 			int length = this.readInt();
-			return this.readNBytes(length);
+			return readNBytes(length);
 		} else if (type.isArray() && Message.class.isAssignableFrom(type.getComponentType())) {
 			var messageType = RecordMessageTypeSerializer.get(serializer, (Class<? extends Message>) type.getComponentType());
-			return this.readArray(messageType);
+			return readArray(messageType);
 		} else if (Message.class.isAssignableFrom(type)) {
 			var messageType = RecordMessageTypeSerializer.get(serializer, (Class<? extends Message>) type);
 			return messageType.reader().read(this);
