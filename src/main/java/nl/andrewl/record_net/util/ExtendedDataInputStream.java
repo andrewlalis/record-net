@@ -56,10 +56,7 @@ public class ExtendedDataInputStream extends DataInputStream {
 	public byte[] readByteArray() throws IOException {
 		int length = readInt();
 		if (length < 0) return null;
-		byte[] array = new byte[length];
-		int readLength = read(array);
-		if (readLength != length) throw new IOException("Could not read complete byte array.");
-		return array;
+		return readNBytes(length);
 	}
 
 	public int[] readIntArray() throws IOException {
