@@ -56,7 +56,12 @@ public class ExtendedDataInputStream extends DataInputStream {
 	public byte[] readByteArray() throws IOException {
 		int length = readInt();
 		if (length < 0) return null;
-		return readNBytes(length);
+		byte[] array = new byte[length];
+		int readCount = read(array, 0, length);
+		while (readCount < length) {
+			readCount += read(array, readCount, length - readCount);
+		}
+		return array;
 	}
 
 	public int[] readIntArray() throws IOException {
