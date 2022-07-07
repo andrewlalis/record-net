@@ -53,6 +53,35 @@ public class ExtendedDataInputStream extends DataInputStream {
 		return new UUID(a, b);
 	}
 
+	public byte[] readByteArray() throws IOException {
+		int length = readInt();
+		if (length < 0) return null;
+		byte[] array = new byte[length];
+		int readLength = read(array);
+		if (readLength != length) throw new IOException("Could not read complete byte array.");
+		return array;
+	}
+
+	public int[] readIntArray() throws IOException {
+		int length = readInt();
+		if (length < 0) return null;
+		int[] array = new int[length];
+		for (int i = 0; i < length; i++) {
+			array[i] = readInt();
+		}
+		return array;
+	}
+
+	public float[] readFloatArray() throws IOException {
+		int length = readInt();
+		if (length < 0) return null;
+		float[] array = new float[length];
+		for (int i = 0; i < length; i++) {
+			array[i] = readFloat();
+		}
+		return array;
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T extends Message> T[] readArray(MessageTypeSerializer<T> type) throws IOException {
 		int length = super.readInt();
@@ -83,6 +112,8 @@ public class ExtendedDataInputStream extends DataInputStream {
 			return readFloat();
 		} else if (type.equals(Double.class) || type.equals(double.class)) {
 			return readDouble();
+		} else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+			return readBoolean();
 		} else if (type.equals(String.class)) {
 			return readString();
 		} else if (type.equals(UUID.class)) {
@@ -90,8 +121,11 @@ public class ExtendedDataInputStream extends DataInputStream {
 		} else if (type.isEnum()) {
 			return readEnum((Class<? extends Enum<?>>) type);
 		} else if (type.isAssignableFrom(byte[].class)) {
-			int length = this.readInt();
-			return readNBytes(length);
+			return readByteArray();
+		} else if (type.isAssignableFrom(int[].class)) {
+			return readIntArray();
+		} else if (type.isAssignableFrom(float[].class)) {
+			return readFloatArray();
 		} else if (type.isArray() && Message.class.isAssignableFrom(type.getComponentType())) {
 			var messageType = RecordMessageTypeSerializer.get(serializer, (Class<? extends Message>) type.getComponentType());
 			return readArray(messageType);

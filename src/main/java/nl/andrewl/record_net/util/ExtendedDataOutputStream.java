@@ -154,6 +154,8 @@ public class ExtendedDataOutputStream extends DataOutputStream {
 			writeFloat((float) o);
 		} else if (type.equals(Double.class) || type.equals(double.class)) {
 			writeDouble((double) o);
+		} else if (type.equals(Boolean.class) || type.equals(boolean.class)) {
+			writeBoolean((boolean) o);
 		} else if (type.equals(String.class)) {
 			writeString((String) o);
 		} else if (type.equals(UUID.class)) {
@@ -162,6 +164,10 @@ public class ExtendedDataOutputStream extends DataOutputStream {
 			writeEnum((Enum<?>) o);
 		} else if (type.equals(byte[].class)) {
 			writeArray((byte[]) o);
+		} else if (type.equals(int[].class)) {
+			writeArray((int[]) o);
+		} else if (type.equals(float[].class)) {
+			writeArray((float[]) o);
 		} else if (type.isArray() && Message.class.isAssignableFrom(type.getComponentType())) {
 			writeArray((Message[]) o);
 		} else if (Message.class.isAssignableFrom(type)) {
