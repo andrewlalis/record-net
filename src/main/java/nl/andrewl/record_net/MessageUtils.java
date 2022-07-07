@@ -66,6 +66,8 @@ public class MessageUtils {
 			return Short.BYTES;
 		} else if (o instanceof Long) {
 			return Long.BYTES;
+		} else if (o instanceof Boolean) {
+			return 1;
 		} else if (o instanceof String) {
 			return getByteSize((String) o);
 		} else if (o instanceof UUID) {
