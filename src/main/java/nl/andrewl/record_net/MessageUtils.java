@@ -56,6 +56,14 @@ public class MessageUtils {
 	public static int getByteSize(Serializer serializer, Object o) {
 		if (o instanceof Integer) {
 			return Integer.BYTES;
+		} else if (o instanceof Float) {
+			return Float.BYTES;
+		} else if (o instanceof Byte) {
+			return Byte.BYTES;
+		} else if (o instanceof Double) {
+			return Double.BYTES;
+		} else if (o instanceof Short) {
+			return Short.BYTES;
 		} else if (o instanceof Long) {
 			return Long.BYTES;
 		} else if (o instanceof String) {
