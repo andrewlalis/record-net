@@ -6,8 +6,8 @@ record-net gives you the advantages of reflection, without the runtime costs. By
 Here's an example of how you can use record-net:
 
 ```java
-import nl.andrewl.record_net.Message;
-import nl.andrewl.record_net.Serializer;
+import com.andrewlalis.record_net.Message;
+import com.andrewlalis.record_net.impl.TypeMappedSerializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,10 +18,11 @@ class Example {
             long timestamp,
             String username,
             String msg
-    ) implements Message {}
+    ) implements Message {
+    }
 
     public static void main(String[] args) throws IOException {
-        var ser = new Serializer();
+        var ser = new TypeMappedSerializer();
         ser.registerType(1, ChatMessage.class);
         var socket = new Socket("127.0.0.1", 8081);
         var bOut = new ByteArrayOutputStream();
