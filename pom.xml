@@ -6,7 +6,7 @@
 
     <groupId>com.andrewlalis</groupId>
     <artifactId>record-net</artifactId>
-    <version>2.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>Record-Net</name>
     <description>A simple library for reading and writing records deterministically and efficiently.</description>
     <url>https://github.com/andrewlalis/record-net</url>
@@ -35,24 +35,121 @@
         </dependency>
     </dependencies>
 
-    <!-- Setup for deploying to GitHub packages with mvn deploy. -->
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>Github record-net Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/andrewlalis/record-net</url>
-        </repository>
-    </distributionManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.ju-n.maven.plugins</groupId>
+                <artifactId>checksum-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>checksum-maven-plugin-files</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>files</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <fileSets>
+                        <fileSet>
+                            <directory>${project.build.directory}</directory>
+                            <includes>
+                                <include>*.pom</include>
+                                <include>*.jar</include>
+                            </includes>
+                        </fileSet>
+                    </fileSets>
+                    <algorithms>
+                        <algorithm>SHA-1</algorithm>
+                        <algorithm>MD5</algorithm>
+                        <algorithm>SHA-256</algorithm>
+                        <algorithm>SHA-512</algorithm>
+                    </algorithms>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.13</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <scm>
         <url>https://github.com/andrewlalis/record-net</url>
+        <connection>scm:git:git://github.com/andrewlalis/record-net.git</connection>
+        <developerConnection>scm:git:ssh://github.com:andrewlalis/record-net.git</developerConnection>
     </scm>
 
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>https://github.com/andrewlalis/record-net/blob/main/LICENSE</url>
-            <distribution>repo</distribution>
+            <url>https://www.opensource.org/licenses/mit-license.php</url>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>Andrew Lalis</name>
+            <email>andrewlalisofficial@gmail.com</email>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 </project>

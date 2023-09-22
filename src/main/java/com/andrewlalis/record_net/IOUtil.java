@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.UUID;
 
+/**
+ * A utility class that contains functions for IO operations on certain data
+ * types. It cannot be instantiated; use its static methods only.
+ */
 public final class IOUtil {
     private IOUtil() {}
 

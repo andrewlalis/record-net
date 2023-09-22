@@ -6,11 +6,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The default {@link RecordSerializer} implementation that performs
+ * serialization and deserialization using a set of pre-registered, known
+ * record types.
+ */
 public class RecordMappedSerializer implements RecordSerializer {
     private final Map<Integer, Class<?>> messageTypes = new HashMap<>();
     private final Map<Class<?>, Integer> messageTypeIds = new HashMap<>();
     private final Map<Class<?>, RecordInfo<?>> messageRecordInfo = new HashMap<>();
 
+    /**
+     * Registers a new record class to this serializer.
+     * @param id The id to assign to this type.
+     * @param type The record class.
+     */
     public void registerType(int id, Class<?> type) {
         if (!type.isRecord()) throw new IllegalArgumentException("Only records are permitted.");
         this.messageTypes.put(id, type);
@@ -18,6 +28,20 @@ public class RecordMappedSerializer implements RecordSerializer {
         this.messageRecordInfo.put(type, RecordInfo.forType(type));
     }
 
+    /**
+     * Registers a new record class to this serializer, using the class' hash
+     * code as its id.
+     * @param type The record class.
+     */
+    public void registerType(Class<?> type) {
+        this.registerType(type.hashCode(), type);
+    }
+
+    /**
+     * Checks if a certain class has been registered for use with this serializer.
+     * @param type The type to check.
+     * @return True if the type is registered and may be used, or false otherwise.
+     */
     public boolean isTypeSupported(Class<?> type) {
         return messageTypeIds.containsKey(type);
     }
@@ -62,7 +86,10 @@ public class RecordMappedSerializer implements RecordSerializer {
         if (type.equals(UUID.class)) {
             return IOUtil.readUUID(dIn);
         }
-        return IOUtil.readPrimitive(type, dIn);
+        if (type.isPrimitive()) {
+            return IOUtil.readPrimitive(type, dIn);
+        }
+        throw new UnsupportedMessageTypeException(type);
     }
 
     @Override
