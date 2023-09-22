@@ -8,12 +8,12 @@ Add it to your Maven project like so:
 <dependency>
     <groupId>com.andrewlalis</groupId>
     <artifactId>record-net</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-implementation 'com.andrewlalis:record-net:1.0.0'
+implementation 'com.andrewlalis:record-net:1.1.0'
 ```
 
 ## Example
