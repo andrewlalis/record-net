@@ -48,3 +48,21 @@ class Main {
     }
 }
 ```
+
+## Module System
+If using the Java Platform Module System (JPMS), then you should add an
+**opens** declaration to open any packages containing your records to the
+record-net module. For example, suppose I have defined my serializable
+records in `com.example.app.data`. Then my `module-info.java` might look like this:
+
+```java
+module com.example.app {
+    // Require record-net as a dependency:
+    requires com.andrewlalis.record_net;
+    // Allow record-net to inspect our records:
+    opens com.example.app.data to com.andrewlalis.record_net;
+}
+```
+
+For more info on the module system, consult this helpful article:
+https://www.oracle.com/corporate/features/understanding-java-9-modules.html
