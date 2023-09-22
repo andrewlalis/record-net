@@ -3,6 +3,19 @@ Simple, performant message library for Java, using records. It allows you to
 serialize and deserialize records and their contents for use in network or
 filesystem IO.
 
+Add it to your Maven project like so:
+```xml
+<dependency>
+    <groupId>com.andrewlalis</groupId>
+    <artifactId>record-net</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+or Gradle:
+```groovy
+implementation 'com.andrewlalis:record-net:1.0.0'
+```
+
 ## Example
 
 ```java
