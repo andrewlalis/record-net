@@ -89,7 +89,7 @@ public class RecordMappedSerializer implements RecordSerializer {
         if (type.equals(String.class)) {
             return IOUtil.readString(dIn);
         }
-        if (type.isPrimitive()) {
+        if (IOUtil.isPrimitiveOrWrapper(type)) {
             return IOUtil.readPrimitive(type, dIn);
         }
         throw new UnsupportedMessageTypeException(type);
@@ -132,7 +132,7 @@ public class RecordMappedSerializer implements RecordSerializer {
             IOUtil.writeUUID((UUID) obj, dOut);
         } else if (type.equals(String.class)) {
             IOUtil.writeString((String) obj, dOut);
-        } else if (type.isPrimitive()) {
+        } else if (IOUtil.isPrimitiveOrWrapper(type)) {
             IOUtil.writePrimitive(obj, dOut);
         } else {
             throw new UnsupportedMessageTypeException(type);

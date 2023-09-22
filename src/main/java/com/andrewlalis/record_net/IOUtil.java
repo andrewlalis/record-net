@@ -3,6 +3,7 @@ package com.andrewlalis.record_net;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -11,6 +12,12 @@ import java.util.UUID;
  */
 public final class IOUtil {
     private IOUtil() {}
+
+    public static boolean isPrimitiveOrWrapper(Class<?> type) {
+        final Set<Class<?>> types = Set.of(Byte.class, Short.class, Integer.class, Character.class, Float.class, Double.class, Long.class, Boolean.class);
+        return type.isPrimitive() || types.contains(type);
+
+    }
 
     public static Object readPrimitive(Class<?> type, DataInputStream dIn) throws IOException {
         if (type.equals(Integer.class) || type.equals(int.class)) return dIn.readInt();
