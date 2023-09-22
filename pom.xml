@@ -6,7 +6,7 @@
 
     <groupId>com.andrewlalis</groupId>
     <artifactId>record-net</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Record-Net</name>
     <description>A simple library for reading and writing records deterministically and efficiently.</description>
     <url>https://github.com/andrewlalis/record-net</url>
